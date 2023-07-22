@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-Scraper-3c6849f7-532f-43d9-a44b-542e4c695747</UserSecretsId>
+    <UserSecretsId>5e9e9d36-c976-438e-85f2-83fb2cd8cbff</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
