@@ -1,6 +1,6 @@
 namespace Scraper.Richmond;
 
-internal interface IRichmond
+internal interface IRichmondScraper
 {
   Task Scrape(DateTime startDate, DateTime endDate);
 }
