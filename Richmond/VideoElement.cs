@@ -1,6 +1,8 @@
 using DataAccess.Models;
 using DataAccess.Data;
 
+namespace Scraper.Richmond;
+
 internal class VideoElement {
   private readonly VideoModel _model;
 
