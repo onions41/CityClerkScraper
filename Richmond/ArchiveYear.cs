@@ -17,15 +17,13 @@ namespace Scraper.Richmond;
 internal class ArchiveYear {
   private readonly HtmlDocument _page;
   private readonly string _meetingType;
-  private readonly IMeetingData _meetingData;
 
-  public ArchiveYear(Uri archiveYearUri, string meetingType, IMeetingData meetingData) {
+  public ArchiveYear(Uri archiveYearUri, string meetingType) {
     // HtmlAgilityPack parser
     _page = new HtmlWeb().Load(archiveYearUri)
       ?? throw new ArgumentException("_page", $"Could not parse the page at {archiveYearUri.ToString()}");
 
     _meetingType = meetingType;
-    _meetingData = meetingData;
   }
 
   public IEnumerable<MeetingElement> GetMeetingElements() {
