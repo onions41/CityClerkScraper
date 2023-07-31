@@ -19,6 +19,10 @@ internal class MeetingElement {
     ResourceUris = resourceUris;
   }
 
+  public MeetingModel Model {
+    get => _model;
+  }
+
   public List<Uri> ResourceUris { init; get; }
 
   public async Task Save(MeetingData data) {
