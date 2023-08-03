@@ -1,45 +1,45 @@
 using Scraper.Richmond;
 
+namespace Scraper;
+
 internal sealed class ScrapingService : IHostedService
 {
-  private readonly ILogger _logger;
-  private readonly IConfiguration _config;
-  private readonly IHostApplicationLifetime _appLifetime;
-  private readonly Task _completedTask = Task.CompletedTask;
-  private readonly IRichmond _richmond;
+	private readonly ILogger _logger;
+	private readonly IConfiguration _config;
+	private readonly IHostApplicationLifetime _appLifetime;
+	private readonly Task _completedTask = Task.CompletedTask;
+	private readonly ISite _richmond;
 
-  public ScrapingService(
-    ILogger<ScrapingService> logger,
-    IConfiguration config,
-    IHostApplicationLifetime appLifetime,
-    IRichmond richmond)
-  {
-    _logger = logger;
-    _config = config;
-    _appLifetime = appLifetime;
-    _richmond = richmond;
-  }
+	public ScrapingService(
+		ILogger<ScrapingService> logger,
+		IConfiguration config,
+		IHostApplicationLifetime appLifetime,
+		ISite richmond
+	) {
+		_logger = logger;
+		_config = config;
+		_appLifetime = appLifetime;
+		_richmond = richmond;
+	}
 
-  public async Task StartAsync(CancellationToken cancellationToken)
-  {
-    // Start of script
+	public async Task StartAsync(CancellationToken cancellationToken) {
+		// Start of script
 
-    var startDate = new DateTime(2013, 1, 1);
-    var endDate = new DateTime(2022, 4, 4);
+		var startDate = new DateTime(2013, 1, 1);
+		var endDate = new DateTime(2022, 4, 4);
 
-    await _richmond.Scrape(startDate, endDate);
-    Console.WriteLine("*******");
+		await _richmond.Scrape(startDate, endDate);
+		Console.WriteLine("*******");
 
-    // End of script
+		// End of script
 
-    _appLifetime.StopApplication();
-    return;
-  }
+		_appLifetime.StopApplication();
+		return;
+	}
 
-  public Task StopAsync(CancellationToken cancellationToken)
-  {
-    return _completedTask;
-  }
+	public Task StopAsync(CancellationToken cancellationToken) {
+		return _completedTask;
+	}
 }
 
 /*
