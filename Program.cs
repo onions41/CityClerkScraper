@@ -3,7 +3,7 @@ using DataAccess.DbAccess;
 
 using Scraper.Richmond;
 
-HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+var builder = Host.CreateApplicationBuilder(args);
 IConfiguration config = builder.Configuration;
 
 // DI
@@ -17,10 +17,10 @@ builder.Services.AddSingleton<IMeetingData, MeetingData>();
 builder.Services.AddSingleton<IVideoData, VideoData>();
 
 // Scraper for each city
-builder.Services.AddSingleton<IRichmond, Richmond>();
+builder.Services.AddSingleton<ISite, Site>();
 
 // Main service
-builder.Services.AddHostedService<InsertVideoTest>();
+builder.Services.AddHostedService<TestParseAgenda>();
 
 // builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
 // builder.Services.AddSingleton<IMeetingData, MeetingData>();
