@@ -4,8 +4,8 @@ using DataAccess.Data;
 
 namespace Scraper.Richmond;
 
-internal class RichmondScraper : IRichmondScraper {
-  private readonly ILogger<RichmondScraper> _logger;
+internal class Site : ISite {
+  private readonly ILogger<Site> _logger;
   private readonly IMeetingData _meetingData;
   private readonly Uri _baseUri = new("https://citycouncil.richmond.ca");
   private readonly Dictionary<string, string> _meetingTypes = new Dictionary<string, string>() {
@@ -20,7 +20,7 @@ internal class RichmondScraper : IRichmondScraper {
     {"public works and transportation committee", "pwt"}
   };
 
-  public RichmondScraper(ILogger<RichmondScraper> logger, IMeetingData meetingData) {
+  public Site(ILogger<Site> logger, IMeetingData meetingData) {
     _logger = logger;
     _meetingData = meetingData;
   }
