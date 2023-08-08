@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-
 using HtmlAgilityPack;
 
 namespace Scraper.Richmond;
@@ -8,52 +7,50 @@ namespace Scraper.Richmond;
 // then clicking Agendas & Minutes Archives from the left side panel,
 // then clicking on a type of meeting.
 // This page shows links to each year's archive.
-class Archive
+internal class Archive
 {
-  private readonly Uri _archiveUri;
+	private readonly Uri _uri;
+	private readonly string _meetingType;
+	private readonly HtmlDocument _page;
 
-  public Archive(
-    string meetingTypeKeyword,
-    Uri baseUri)
-  {
-    // Path to the archive page for a specific meeting type
-    _archiveUri = new Uri(baseUri, $"/agendas/archives/{meetingTypeKeyword}.htm");
-  }
+	public Archive(
+		Uri uri,
+		string meetingType
+	) {
+		_uri = uri;
+		_meetingType = meetingType;
+		_page = new HtmlWeb().Load(_uri);
+	}
 
-  // Yields Uris of archive pages for each year
-  public IEnumerable<Uri> GetArchiveYearUris(
-    DateTime startDate,
-    DateTime endDate)
-  {
-    // HtmlAgilityPack parcer
-    HtmlDocument meetingPage = new HtmlWeb().Load(_archiveUri);
+	// Yields Uris of archive pages for each year
+	public IEnumerable<ArchiveYear> GetArchiveYears(DateTime startDate, DateTime endDate) {
+		// Selects all <a> tags that link to each year's archive page
+		var archiveLinks = _page.DocumentNode.SelectNodes(
+			"//div[@class='links-block links-block--childlinks']/ul/li/a"
+		) ?? throw new Exception("No links could be retrieved from this meeting's archive page");
 
-    // Selects all <a> elements that link to each year's archive page
-    HtmlNodeCollection archiveLinks = meetingPage.DocumentNode.SelectNodes(
-      "//div[@class='links-block links-block--childlinks']/ul/li/a"
-    ) ?? throw new ArgumentNullException("No links could be retrieved from this meeting's archive page");
+		// Loop from start year to end year, inclusive.
+		for (var year = startDate.Year; year <= endDate.Year; year++) {
+			// Filters retrieved links for the specific year
+			var results =
+				archiveLinks.Where<HtmlNode>(link => Regex.Match(link.InnerHtml, $"{year}").Success);
+			// Throws if more than one link is found containing that year
+			if (results.Count<HtmlNode>() > 1) {
+				throw new Exception($"More than one archive link found for year {year}");
+			}
 
-    // Loop from start year to end year, inclusive.
-    for (int year = startDate.Year; year <= endDate.Year; year++)
-    {
-      // Filters retrieved links for the specific year
-      IEnumerable<HtmlNode> results = archiveLinks.Where<HtmlNode>(link => Regex.Match(link.InnerHtml, $"{year}").Success);
-      // Throws if more than one link is found containing that year
-      if (results.Count<HtmlNode>() > 1) { throw new Exception($"More than one archive link found for year {year}"); }
-      // Throws if no archive link is found
-      HtmlNode link = results.First();
+			// Throws if no archive link is found
+			var link = results.First();
 
-      // Grab the href of the retrieved <a> element
-      string href = link.Attributes["href"].Value;
-      // href is a reletive URL
-      if (!Regex.Match(href, "^http").Success)
-      {
-        // Append it to baseUrl to make it absolute
-        href = $"{_archiveUri}{href}";
-      }
+			// Grab the href of the retrieved <a> element
+			var href = link.Attributes["href"].Value;
+			// href is a relative URL
+			if (!Regex.Match(href, "^http").Success) {
+				// Append it to baseUrl to make it absolute
+				href = $"{_uri}{href}";
+			}
 
-      yield return new Uri(href);
-    }
-  }
+			yield return new ArchiveYear(new Uri(href), _meetingType);
+		}
+	}
 }
-
