@@ -13,7 +13,7 @@ internal class Agenda : DocumentBase
 	}
 
 	protected override void Parse() {
-		var page = new HtmlWeb().Load(Uri);
+		var page = new HtmlWeb().Load(_uri);
 
 		StringBuilder sb = new();
 		// Iterate through all inner text found in the HTML and append to string builder
@@ -28,32 +28,9 @@ internal class Agenda : DocumentBase
 		var fingerprint = GenerateFingerprint(textContent);
 
 		Model = new DocumentModel() {
-			Url = Uri.ToString(),
+			Url = _uri.ToString(),
 			Fingerprint = fingerprint,
 			TextContent = textContent,
 		};
-	}
-
-	protected override byte[] GenerateFingerprint<T>(T content) {
-		if (content is not string textContent) throw new Exception("Impossible. TextContent is not of type string.");
-		
-		var fingerprint = new byte[100];
-		var contentBytes = Encoding.ASCII.GetBytes(textContent);
-		
-		if (contentBytes.Length > 100) {
-			var middleIndex = contentBytes.Length / 2;
-			var startIndex = middleIndex - 50;
-			Array.Copy(
-				contentBytes,
-				startIndex,
-				fingerprint,
-				0,
-				100
-			);
-		} else {
-			fingerprint = contentBytes;
-		}
-		
-		return fingerprint;
 	}
 }

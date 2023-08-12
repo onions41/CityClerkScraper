@@ -8,17 +8,19 @@ namespace Scraper.Richmond;
 
 internal class Minutes : DocumentBase
 {
+	private readonly HtmlDocument _page;
+	
 	public Minutes(Uri uri, string meetingsDocumentsType) : base(uri) {
+		_page = new HtmlWeb().Load(uri);
+		
 		MeetingsDocumentsType = meetingsDocumentsType;
 	}
 
 	protected override void Parse() {
-		var page = new HtmlWeb().Load(Uri);
-
 		var sb = new StringBuilder();
 
 		// Iterate through all inner text found in the HTML and append to string builder
-		foreach (var node in page.DocumentNode.SelectNodes("//div[@class='content']//text()")) {
+		foreach (var node in _page.DocumentNode.SelectNodes("//div[@class='content']//text()")) {
 			// Some rudimentary filtering of text
 			if (string.IsNullOrWhiteSpace(node.InnerText) || node.InnerText == "&nbsp;") continue;
 
@@ -31,38 +33,14 @@ internal class Minutes : DocumentBase
 		var fingerprint = GenerateFingerprint(textContent);
 
 		Model = new DocumentModel() {
-			Url = Uri.ToString(),
+			Url = _uri.ToString(),
 			Fingerprint = fingerprint,
 			TextContent = textContent
 		};
 	}
 
-	protected override byte[] GenerateFingerprint<T>(T content) {
-		if (content is not string textContent) throw new Exception("Impossible. TextContent is not of type string.");
-		
-		var fingerprint = new byte[100];
-		var contentBytes = Encoding.ASCII.GetBytes(textContent);
-		
-		if (contentBytes.Length > 100) {
-			var middleIndex = contentBytes.Length / 2;
-			var startIndex = middleIndex - 50;
-			Array.Copy(
-				contentBytes,
-				startIndex,
-				fingerprint,
-				0,
-				100
-			);
-		} else {
-			fingerprint = contentBytes;
-		}
-		
-		return fingerprint;
-	}
-
-public IEnumerable<DocumentBase> GetReferences() {
-		var page = new HtmlWeb().Load(Uri);
-		var links = page.DocumentNode.SelectNodes("//div[@class='content']//a");
+	public IEnumerable<DocumentBase> GetReferences() {
+		var links = _page.DocumentNode.SelectNodes("//div[@class='content']//a");
 		if (links is null) yield break;
 
 		// Iterate through all links found in the HTML and append to string builder
@@ -77,7 +55,7 @@ public IEnumerable<DocumentBase> GetReferences() {
 			var url = link.Attributes["href"].Value;
 			Uri referenceUri;
 			if (!string.IsNullOrEmpty(url) && url[0] == '/') {
-				referenceUri = new Uri(RichmondWebsite.BaseUri, url);
+				referenceUri = new Uri(Website.BaseUri, url);
 			} else {
 				referenceUri = new Uri(url);
 			}
@@ -85,7 +63,7 @@ public IEnumerable<DocumentBase> GetReferences() {
 			url = referenceUri.ToString();
 
 			if (Regex.IsMatch(url, @"pdf$")) {
-				yield return new ReferencePdf(referenceUri, link.InnerText);
+				yield return new ReferencePdf(referenceUri);
 			} else if (Regex.IsMatch(url, @"htm$")) {
 				yield return new Minutes(referenceUri, "previous minutes");
 			} else {
