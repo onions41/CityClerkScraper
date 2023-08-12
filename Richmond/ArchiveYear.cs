@@ -70,7 +70,7 @@ internal class ArchiveYear
 						var url = link.Attributes["href"].Value;
 						Uri resourceUri;
 						if (!string.IsNullOrEmpty(url) && url[0] == '/') {
-							resourceUri = new Uri(RichmondWebsite.BaseUri, url);
+							resourceUri = new Uri(Website.BaseUri, url);
 						} else {
 							resourceUri = new Uri(url);
 						}
