@@ -1,6 +1,6 @@
 using Scraper.Common;
 
-namespace Scraper.Richmond.Tests;
+namespace Scraper.Richmond.Trials;
 
 internal class DryRunArchive : IHostedService
 {
