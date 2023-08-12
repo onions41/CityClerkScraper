@@ -5,10 +5,9 @@ using Scraper.Common;
 
 namespace Scraper.Richmond;
 
-internal class Meeting
+internal class Meeting : MeetingBase
 {
 	private readonly string _meetingType;
-	private const string MunicipalityName = "Richmond";
 
 	public Meeting(
 		DateTime date,
@@ -18,18 +17,16 @@ internal class Meeting
 		_meetingType = meetingType;
 
 		Model = new MeetingModel() {
-			MunicipalityName = MunicipalityName,
+			MunicipalityName = Website.MunicipalityName,
 			Type = meetingType,
 			Date = date,
 		};
 
 		ResourceUris = resourceUris;
 	}
+	public List<Uri> ResourceUris { get; }
 
-	public MeetingModel Model { get; private init; }
-	public List<Uri> ResourceUris { get; private init; }
-
-	public IEnumerable<DocumentBase> GetDocuments() {
+	public override IEnumerable<DocumentBase> GetDocuments() {
 		foreach (var uri in ResourceUris) {
 			var url = uri.ToString();
 
@@ -43,16 +40,16 @@ internal class Meeting
 		}
 	}
 
-	public IEnumerable<Video> GetVideos() {
+	public override IEnumerable<Video> GetVideos() {
 		foreach (var uri in ResourceUris) {
 			var url = uri.ToString();
 			string type;
 
 			// If URL matches, it is a document.
 			if (Regex.IsMatch(url, @"youtu\.be")) {
-				type = "meeting recording";
+				type = "meeting video";
 			} else if (Regex.IsMatch(url, @"MediaPlayer\.php")) {
-				type = "meeting recording youtube";
+				type = "meeting video youtube";
 			} else {
 				continue;
 			}

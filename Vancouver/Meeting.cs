@@ -85,7 +85,7 @@ internal class Meeting : MeetingBase
 		}
 	}
 
-	public override IEnumerable<VideoBase> GetVideos() {
+	public override IEnumerable<Video> GetVideos() {
 		var titleDiv = _page.DocumentNode.SelectSingleNode("//div[@id='pleasenote']");
 
 		// titleDiv is null for in camera meeting page
@@ -95,7 +95,7 @@ internal class Meeting : MeetingBase
 			if (Regex.IsMatch(item.InnerText, "video", RegexOptions.IgnoreCase)) {
 				// return minutes
 				var videoUri = new Uri(item.Attributes["href"].Value);
-				yield return new Video(videoUri);
+				yield return new Video(videoUri, "meeting video");
 			}
 		}
 	}
