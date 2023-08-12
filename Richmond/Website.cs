@@ -2,16 +2,17 @@ using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using DataAccess.Data;
+using Scraper.Common;
 
 namespace Scraper.Richmond;
 
-internal class RichmondWebsite : IRichmondSite
+internal class Website : IWebsite
 {
-	private readonly ILogger<RichmondWebsite> _logger;
-	private readonly IMeetingData _meetingData;
+	private readonly ILogger<Website> _logger;
+	
+	public static readonly string MunicipalityName = "Richmond";
 	public static readonly Uri BaseUri = new Uri("https://citycouncil.richmond.ca");
-
-	private readonly Dictionary<string, string> _meetingTypes = new Dictionary<string, string>() {
+	public readonly Dictionary<string, string> MeetingTypes = new() {
 		{ "council meeting", "council" },
 		{ "community safety committee", "safety" },
 		{ "development permit panel", "dpp" },
@@ -23,14 +24,16 @@ internal class RichmondWebsite : IRichmondSite
 		{ "public works and transportation committee", "pwt" }
 	};
 
-	public RichmondWebsite(ILogger<RichmondWebsite> logger, IMeetingData meetingData) {
+	public Website(ILogger<Website> logger) {
 		_logger = logger;
-		_meetingData = meetingData;
 	}
 
-	public Task Scrape(DateTime startDate, DateTime endDate) {
-		// Iterates over each type of meeting
-		foreach (var pair in _meetingTypes) {
+	public Task ScrapeArchive(DateTime startDate, DateTime endDate) {
+		throw new NotImplementedException();
+	}
+
+	public Task DryRunArchive(DateTime startDate, DateTime endDate) {
+		foreach (var pair in MeetingTypes) {
 			_logger.LogInformation("");
 			_logger.LogInformation($"**#### Starting on *{pair.Key}* ####**");
 
@@ -52,7 +55,7 @@ internal class RichmondWebsite : IRichmondSite
 
 					foreach (var document in meeting.GetDocuments()) {
 						_logger.LogInformation(
-							$"A {document.MeetingsDocumentsType} was found: {document.Uri}"
+							$"A {document.MeetingsDocumentsType} was found: {document.Model.Url}"
 						);
 
 						if (document is not Minutes minutes) continue;
@@ -60,18 +63,26 @@ internal class RichmondWebsite : IRichmondSite
 						foreach (var reference in minutes.GetReferences()) {
 							Thread.Sleep(5000);
 							_logger.LogInformation(
-								$"A reference {reference.MeetingsDocumentsType} found: {reference.Uri}"
+								$"A reference {reference.MeetingsDocumentsType} found: {reference.Model.Url}"
 							);
 						}
 					}
 
 					foreach (var video in meeting.GetVideos()) {
-						_logger.LogInformation($"Found this video {video.Uri}");
+						_logger.LogInformation($"Found this video {video.Model.Url}");
 					}
 				}
 			}
 		}
 
 		return Task.CompletedTask;
+	}
+
+	public Task ScrapeLatest(DateTime startDate, DateTime endDate) {
+		throw new NotImplementedException();
+	}
+
+	public Task DryRunLatest(DateTime startDate, DateTime endDate) {
+		throw new NotImplementedException();
 	}
 }
