@@ -1,41 +1,48 @@
 using Scraper.Common;
+using Vancouver = Scraper.Vancouver;
+using Richmond = Scraper.Richmond;
 
-namespace Scraper.Richmond.Trials;
+namespace Scraper.MiscTests;
 
 internal class DryRunArchive : IHostedService
 {
-	private readonly ILogger<DryRunArchive> _logger;
-	private readonly IConfiguration _config;
-	private readonly IHostApplicationLifetime _appLifetime;
-	private readonly Task _completedTask = Task.CompletedTask;
-	private readonly IWebsite _website;
+   private readonly ILogger<DryRunArchive> _logger;
+   private readonly IConfiguration _config;
+   private readonly IHostApplicationLifetime _appLifetime;
+   private readonly Task _completedTask = Task.CompletedTask;
+   private readonly IEnumerable<IWebsite> _websites;
 
-	public DryRunArchive(
-		ILogger<DryRunArchive> logger,
-		IConfiguration config,
-		IHostApplicationLifetime appLifetime,
-		IWebsite website
-	) {
-		_logger = logger;
-		_config = config;
-		_appLifetime = appLifetime;
-		_website = website;
-	}
-	
-	public async Task StartAsync(CancellationToken cancellationToken) {
-		// Start of script
+   public DryRunArchive(
+      ILogger<DryRunArchive> logger,
+      IConfiguration config,
+      IHostApplicationLifetime appLifetime,
+      IEnumerable<IWebsite> websites
+   ) {
+      _logger = logger;
+      _config = config;
+      _appLifetime = appLifetime;
+      _websites = websites;
+   }
 
-		var startDate = new DateTime(2019, 6, 1);
-		var endDate = new DateTime(2019, 6, 30);
-		await _website.DryRunArchive(startDate, endDate);
+   public async Task StartAsync(CancellationToken cancellationToken) {
+      // Start of script
 
-		// End of script
+      foreach (var website in _websites) {
+         if (website is not Richmond.Website) continue;
+         
+         var startDate = new DateTime(2019, 6, 1);
+         var endDate = new DateTime(2019, 6, 30);
+         
+         await website.DryRunArchive(startDate, endDate);
+      }
 
-		_appLifetime.StopApplication();
-		// return _completedTask;
-	}
+      // End of script
 
-	public Task StopAsync(CancellationToken cancellationToken) {
-		return _completedTask;
-	}
-} 
+      _appLifetime.StopApplication();
+      // return _completedTask;
+   }
+
+   public Task StopAsync(CancellationToken cancellationToken) {
+      return _completedTask;
+   }
+}
