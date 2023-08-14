@@ -14,7 +14,6 @@ internal abstract class DocumentBase
 		_uri = uri;
 		// Ignore this warning. It is calling an abstract method, not a virtual method.
 		// Which means there is no ambiguity over with implementation is being called.
-		Thread.Sleep(1000);
 		Parse(); 
 	}
 
