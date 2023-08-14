@@ -29,13 +29,15 @@ internal class Meeting : MeetingBase
 	public override IEnumerable<DocumentBase> GetDocuments() {
 		foreach (var uri in ResourceUris) {
 			var url = uri.ToString();
+            
+			if (Model?.Id is null) throw new Exception("MeetingId is null when trying to create get a document");
 
 			if (Regex.IsMatch(url, "Open_Council.+pdf$")) {
-				yield return new StaffReport(uri);
+				yield return new StaffReport(uri, (int)Model.Id);
 			} else if (Regex.IsMatch(url, @"agenda\.htm$")) {
-				yield return new Agenda(uri);
+				yield return new Agenda(uri, (int)Model.Id);
 			} else if (Regex.IsMatch(url, @"minutes\.htm$")) {
-				yield return new Minutes(uri, "minutes");
+				yield return new Minutes(uri, (int)Model.Id,"minutes");
 			}
 		}
 	}

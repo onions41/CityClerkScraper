@@ -41,6 +41,7 @@ internal class Meeting : MeetingBase
 	}
 
 	public override IEnumerable<DocumentBase> GetDocuments() {
+		if (Model?.Id is null) throw new Exception("Cannot get documents before initializing the meeting model");
 		var titleDiv = _page.DocumentNode.SelectSingleNode("//div[@id='pleasenote']");
 
 		if (titleDiv is not null) {
@@ -55,7 +56,7 @@ internal class Meeting : MeetingBase
 						minutesUri = new Uri(_uri, link.Attributes["href"].Value);
 					}
 
-					yield return new MinutesPdf(minutesUri);
+					yield return new MinutesPdf(minutesUri, (int)Model.Id);
 				}
 			}
 		}
@@ -75,11 +76,11 @@ internal class Meeting : MeetingBase
 				} catch (UriFormatException) {
 					uri = new Uri(_uri, link.Attributes["href"].Value);
 				}
-					
+                
 				if (link.InnerHtml == "Decision") {
-					yield return new MinutesPdf(uri);
+					yield return new MinutesPdf(uri, (int)Model.Id);
 				} else {
-					yield return new ReferencePdf(uri);
+					yield return new ReferencePdf(uri, (int)Model.Id);
 				}
 			}
 		}
