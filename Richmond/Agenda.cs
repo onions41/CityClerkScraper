@@ -8,12 +8,12 @@ namespace Scraper.Richmond;
 
 internal class Agenda : DocumentBase
 {
-	public Agenda(Uri uri) : base(uri) {
+	public Agenda(Uri uri, int meetingId) : base(uri, meetingId) {
 		MeetingsDocumentsType = "agenda";
 	}
 
 	protected override void Parse() {
-		var page = new HtmlWeb().Load(_uri);
+		var page = new HtmlWeb().Load(Uri);
 
 		StringBuilder sb = new();
 		// Iterate through all inner text found in the HTML and append to string builder
@@ -28,7 +28,7 @@ internal class Agenda : DocumentBase
 		var fingerprint = GenerateFingerprint(textContent);
 
 		Model = new DocumentModel() {
-			Url = _uri.ToString(),
+			Url = Uri.ToString(),
 			Fingerprint = fingerprint,
 			TextContent = textContent,
 		};

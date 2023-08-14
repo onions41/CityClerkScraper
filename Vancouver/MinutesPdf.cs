@@ -4,7 +4,7 @@ namespace Scraper.Vancouver;
 
 internal class MinutesPdf : PdfDocument
 {
-	public MinutesPdf(Uri uri) : base(uri) {
+	public MinutesPdf(Uri uri , int meetingId) : base(uri, meetingId) {
 		MeetingsDocumentsType = "minutes";
 	}
 }
