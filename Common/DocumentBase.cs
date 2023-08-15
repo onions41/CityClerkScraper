@@ -14,7 +14,7 @@ internal abstract class DocumentBase
 
    protected DocumentBase(Uri uri, int meetingId) {
       Uri = uri;
-      MeetingId = MeetingId;
+      MeetingId = meetingId;
       // Ignore this warning. It is calling an abstract method, not a virtual method.
       // Which means there is no ambiguity over with implementation is being called.
       Parse();
@@ -24,9 +24,10 @@ internal abstract class DocumentBase
    public string? MeetingsDocumentsType { get; protected init; }
 
    public async Task Save(IDocumentData documentData) {
-      if (Model is null) throw new Exception("Cannot call DocumentBase.Save() before Model is initialized");
+      if (Model is null) throw new NullReferenceException("Cannot call DocumentBase.Save() before Model is initialized");
+      if (MeetingsDocumentsType is null) throw new NullReferenceException("MeetingsDocumentsType not initialized");
 
-      Model.Id = await documentData.InsertDocument(Model, MeetingId);
+      Model.Id = await documentData.InsertDocument(Model, MeetingId, MeetingsDocumentsType);
    }
     
    protected static byte[] GenerateFingerprint(byte[] content) {
